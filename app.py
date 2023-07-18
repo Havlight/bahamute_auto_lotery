@@ -12,7 +12,7 @@ import schedule
 import threading
 from baha_auto_lottery.auto_check_in import run_check_in
 from baha_auto_lottery.auto_lottery_hu import run_lottery, handler
-
+from baha_auto_lottery.config import config
 
 def generate_random_string(length=12):
     characters = string.ascii_letters + string.digits
@@ -41,7 +41,7 @@ def login():
         username = request.form['username']
         password = request.form['password']
 
-        if username == 'admin' and password == 'a229617192':
+        if username == config['account']['username'] and password == config['account']['password']:
             session['is_login'] = "True"
             return render_template('login.html', login_msg="登入成功")
         else:
