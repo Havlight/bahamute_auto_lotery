@@ -102,22 +102,20 @@ async def main():
 
     async def answer_lottery_question(sn):
         try:
-            await page.goto(f'https://fuli.gamer.com.tw/buyD.php?ad=1&sn={sn}')
-            need_ans_msg = page.get_by_text(text="請先回答問題")
-            if await need_ans_msg.inner_text() == "請先回答問題":
-                logging.info("開始回答問題")
-                await page.goto(f"https://fuli.gamer.com.tw/shop_detail.php?sn={sn}")
-                await simulate_page_mouse()
-                await simulate_page_scroll()
-                await page.get_by_text(text='看廣告免費兌換').click(delay=randint(1, 3) * 100)
-                try:
-                    while await page.locator('#dialogify_1').count():
-                        for qus in await page.locator('div.fuli-option-box > a.btn-base.fuli-option').all():
-                            await simulate_page_mouse()
-                            await qus.click(delay=randint(1, 3) * 100)
-                except:
-                    logging.info("回答結束")
-                    await page.evaluate('buyItem(1);')
+            await page.goto(f"https://fuli.gamer.com.tw/shop_detail.php?sn={sn}")
+            await simulate_page_mouse()
+            await simulate_page_scroll()
+            await page.get_by_text(text='看廣告免費兌換').click(delay=randint(1, 3) * 100)
+            await page.locator('div.fuli-option-box > a.btn-base.fuli-option').is_visible(
+                timeout=randint(3, 6) * 1000)
+            try:
+                while await page.locator('#dialogify_1').count():
+                    for qus in await page.locator('div.fuli-option-box > a.btn-base.fuli-option').all():
+                        await simulate_page_mouse()
+                        await qus.click(delay=randint(1, 3) * 100)
+            except:
+                logging.info("回答結束")
+                await page.evaluate('buyItem(1);')
         except:
             logging.info('不需要回答問題')
 
@@ -161,7 +159,7 @@ async def main():
 
             await page.goto(f'https://fuli.gamer.com.tw/buyD.php?ad=1&sn={sn}')
             await simulate_page_scroll()
-            await page.locator("#agree-confirm").click(delay=randint(1, 3) * 100)
+            await page.locator("#buyD > div.flex-center.agree-confirm > div > label").click(delay=randint(1, 3) * 100)
             await simulate_page_mouse()
             await page.locator(".c-primary").click(delay=randint(1, 3) * 100)
             await simulate_page_mouse()
@@ -209,8 +207,9 @@ async def main():
         headers = {
             'User-Agent': config['User-Agent'],
             'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7',
-            'Sec-Ch-Ua': '"Not.A/Brand";v="8", "Chromium";v="114", "Google Chrome";v="114"',
-            'Sec-Ch-Ua-Platform': '""Windows""'
+            # 'Sec-Ch-Ua': '"Not.A/Brand";v="8", "Chromium";v="114", "Google Chrome";v="114"',
+            # 'Sec-Ch-Ua-Platform': '""Windows""',
+            # 'Upgrade-Insecure-Requests': '1'
         }
         headless = "--headless=new"
         if config['headless'] != "True":
@@ -225,7 +224,8 @@ async def main():
                 f"--load-extension={os.getcwd() + path_to_extension}",
                 "--disable-blink-features=AutomationControlled",
                 '--disable-dev-shm-usage',
-                '--no-sandbox'
+                '--no-sandbox',
+                # "--auto-open-devtools-for-tabs"
             ],
             user_agent=config['User-Agent'],
             ignore_https_errors=True,

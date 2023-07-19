@@ -97,6 +97,7 @@ def background_baha():
     print("結束登入")
     print("開始自動抽獎")
     run_lottery()
+    print("完成抽獎")
 
 
 def job():
